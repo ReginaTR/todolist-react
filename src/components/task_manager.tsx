@@ -1,17 +1,26 @@
-import { FC } from "react"
-import { TaskType } from "../App"
+import { FC, useState } from "react"
 import classNames from 'classnames'
 
-
-type PropsType = {
-    tasks: TaskType[]
+//Aqui estou tipando o tasks
+type TaskType = {
+    id: number,
+    title: string,
+    done: boolean
 }
+const TASKS: TaskType[] = [
+    {id: 1, title: 'A', done: true},
+    {id: 2, title: 'B', done: false},
+    {id: 3, title: 'C', done: true},
+]
 
 
-const TaskManager: FC<PropsType> = props => {
-    //console.log(props.tasks) Isso é para teste, nunca será usando em ambiente de desenvolvimento. Foi só para ver se subiu os dados passados.
-
-
+const TaskManager: FC = () => {
+    const [tasks, setTasks] = useState(TASKS)
+    
+    const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        setTasks(previousTasks => previousTasks.filter(task => task !== deletedTask))
+        }
+    
     return (
         <>
             <section className='todoapp'>
@@ -24,16 +33,16 @@ const TaskManager: FC<PropsType> = props => {
                 <input id='toggle-all' className='toggle-all' type='checkbox' />
                 <label htmlFor='toggle-all'>Mark all as complete</label>
                 <ul className='todo-list'>
-                {props.tasks.map(task =>
+                {tasks.map(task => (
                     <li className={classNames({completed: task.done})}>
                         <div className='view'>
-                        <input className='toggle' type='checkbox' checked={task.done} />
-                        <label>{task.title}</label>
-                        <button className='destroy'></button>
+                            <input className='toggle' type='checkbox' checked={task.done} />
+                            <label>{task.title}</label>
+                            <button className='destroy' onClick={handleTaskDeleteClick(task)}></button>
                         </div>
                         <input className='edit' value='Taste JavaScript' />
                     </li>
-                )}    
+                ))}    
                 <li>
                     <div className='view'>
                     <input className='toggle' type='checkbox' />
