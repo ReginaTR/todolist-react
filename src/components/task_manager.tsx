@@ -26,6 +26,8 @@ const TaskManager: FC = () => {
         setTasks(previousTasks => previousTasks.map(task => (task === updatedTask ? {...task, done } : task)))
      }
 
+    const activeTasks = tasks.filter(task => !task.done)
+
     return (
         <>
             <section className='todoapp'>
@@ -62,7 +64,7 @@ const TaskManager: FC = () => {
 
             <footer className='footer'>
                 <span className='todo-count'>
-                <strong>0</strong> item left
+                <strong>{activeTasks.length}</strong> item{activeTasks.length !== 1 && 's'} left
                 </span>
                 <ul className='filters'>
                 <li>
