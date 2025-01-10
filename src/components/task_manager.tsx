@@ -20,7 +20,12 @@ const TaskManager: FC = () => {
     const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setTasks(previousTasks => previousTasks.filter(task => task !== deletedTask))
         }
-    
+    const handleTaskUpdateStatusChange = (updatedTask: TaskType) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        const done = e.target.checked
+
+        setTasks(previousTasks => previousTasks.map(task => (task === updatedTask ? {...task, done } : task)))
+     }
+
     return (
         <>
             <section className='todoapp'>
@@ -36,7 +41,8 @@ const TaskManager: FC = () => {
                 {tasks.map(task => (
                     <li className={classNames({completed: task.done})}>
                         <div className='view'>
-                            <input className='toggle' type='checkbox' checked={task.done} />
+                            <input className='toggle' type='checkbox' checked={task.done} 
+                            onChange={handleTaskUpdateStatusChange(task)} />
                             <label>{task.title}</label>
                             <button className='destroy' onClick={handleTaskDeleteClick(task)}></button>
                         </div>
