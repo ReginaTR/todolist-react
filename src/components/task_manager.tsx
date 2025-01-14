@@ -16,7 +16,8 @@ const TASKS: TaskType[] = [
 
 const TaskManager: FC = () => {
     const [tasks, setTasks] = useState(TASKS)
-    
+    const [newTaskTitle, setNewTaskTitle] = useState("")
+
     const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setTasks(previousTasks => previousTasks.filter(task => task !== deletedTask))
         }
@@ -28,12 +29,32 @@ const TaskManager: FC = () => {
 
     const activeTasks = tasks.filter(task => !task.done)
 
+    const handleNewTaskTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        const key = e.key
+        const title = newTaskTitle.trim()
+
+        if (key === 'Enter' && title !== ''){
+            setTasks(previousTasks => previousTasks.concat({id: previousTasks.length + 1, title, done: false}))
+
+            setNewTaskTitle('')
+        }
+
+    }
+
     return (
         <>
             <section className='todoapp'>
             <header className='header'>
                 <h1>todos</h1>
-                <input className='new-todo' placeholder='What needs to be done?' autoFocus />
+                <input 
+                className='new-todo' 
+                placeholder='What needs to be done?' 
+                autoFocus 
+                value={newTaskTitle}
+                onChange={e => setNewTaskTitle(e.target.value)}
+                onKeyDown={handleNewTaskTitleKeyDown}
+                />
+
             </header>
 
             <section className='main'>
@@ -54,7 +75,6 @@ const TaskManager: FC = () => {
                 <li>
                     <div className='view'>
                     <input className='toggle' type='checkbox' />
-                    <label>Buy a unicorn</label>
                     <button className='destroy'></button>
                     </div>
                     <input className='edit' value='Buy a unicorn' />
