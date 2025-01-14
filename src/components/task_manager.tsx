@@ -1,4 +1,4 @@
-import { FC, useState } from "react"
+import { FC, useRef, useState } from "react"
 import classNames from 'classnames'
 
 //Aqui estou tipando o tasks
@@ -16,7 +16,8 @@ const TASKS: TaskType[] = [
 
 const TaskManager: FC = () => {
     const [tasks, setTasks] = useState(TASKS)
-    const [newTaskTitle, setNewTaskTitle] = useState("")
+    //const [newTaskTitle, setNewTaskTitle] = useState("")
+    const newTaskTitleRef = useRef<HTMLInputElement>(null)
 
     const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setTasks(previousTasks => previousTasks.filter(task => task !== deletedTask))
@@ -31,13 +32,17 @@ const TaskManager: FC = () => {
 
     const handleNewTaskTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const key = e.key
-        const title = newTaskTitle.trim()
+        //const title = newTaskTitle.trim()
 
+        if (newTaskTitleRef.current !== null){
+            const input = newTaskTitleRef.current
+            const title = input.value.trim()
         if (key === 'Enter' && title !== ''){
             setTasks(previousTasks => previousTasks.concat({id: previousTasks.length + 1, title, done: false}))
 
-            setNewTaskTitle('')
-        }
+            //setNewTaskTitle('')
+            input.value = ""
+        }}
 
     }
 
@@ -50,8 +55,9 @@ const TaskManager: FC = () => {
                 className='new-todo' 
                 placeholder='What needs to be done?' 
                 autoFocus 
-                value={newTaskTitle}
-                onChange={e => setNewTaskTitle(e.target.value)}
+                //value={newTaskTitle}
+                //onChange={e => setNewTaskTitle(e.target.value)}
+                ref = {newTaskTitleRef}
                 onKeyDown={handleNewTaskTitleKeyDown}
                 />
 
