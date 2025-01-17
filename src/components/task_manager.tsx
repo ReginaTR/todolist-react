@@ -16,7 +16,7 @@ const TASKS: TaskType[] = [
 
 const TaskManager: FC = () => {
     const [tasks, setTasks] = useState(TASKS)
-    //const [newTaskTitle, setNewTaskTitle] = useState("")
+    const [newTaskTitle, setNewTaskTitle] = useState("")
     const newTaskTitleRef = useRef<HTMLInputElement>(null)
 
     const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -32,7 +32,7 @@ const TaskManager: FC = () => {
 
     const handleNewTaskTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const key = e.key
-        //const title = newTaskTitle.trim()
+        const title = newTaskTitle.trim()
 
         if (newTaskTitleRef.current !== null){
             const input = newTaskTitleRef.current
@@ -40,7 +40,7 @@ const TaskManager: FC = () => {
         if (key === 'Enter' && title !== ''){
             setTasks(previousTasks => previousTasks.concat({id: previousTasks.length + 1, title, done: false}))
 
-            //setNewTaskTitle('')
+            setNewTaskTitle('')
             input.value = ""
         }}
 
@@ -55,8 +55,8 @@ const TaskManager: FC = () => {
                 className='new-todo' 
                 placeholder='What needs to be done?' 
                 autoFocus 
-                //value={newTaskTitle}
-                //onChange={e => setNewTaskTitle(e.target.value)}
+                value={newTaskTitle}
+                onChange={e => setNewTaskTitle(e.target.value)}
                 ref = {newTaskTitleRef}
                 onKeyDown={handleNewTaskTitleKeyDown}
                 />
@@ -70,8 +70,11 @@ const TaskManager: FC = () => {
                 {tasks.map(task => (
                     <li className={classNames({completed: task.done})}>
                         <div className='view'>
-                            <input className='toggle' type='checkbox' checked={task.done} 
-                            onChange={handleTaskUpdateStatusChange(task)} />
+                            <input className='toggle' 
+                            type='checkbox' 
+                            checked={task.done} 
+                            onChange={handleTaskUpdateStatusChange(task)} 
+                            />
                             <label>{task.title}</label>
                             <button className='destroy' onClick={handleTaskDeleteClick(task)}></button>
                         </div>
