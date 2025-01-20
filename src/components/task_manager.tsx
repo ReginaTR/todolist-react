@@ -17,34 +17,63 @@ const TASKS: TaskType[] = [
 const TaskManager: FC = () => {
     const [tasks, setTasks] = useState(TASKS)
     const [newTaskTitle, setNewTaskTitle] = useState("")
-    const newTaskTitleRef = useRef<HTMLInputElement>(null)
+    const [taskBeingEditedId, setTaskBeingEditedId] = useState<TaskType['id']| null>(null)
+    const taskTitlesRef = useRef<{[index: TaskType['id']]: HTMLInputElement }>({})
 
+   
+    
     const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setTasks(previousTasks => previousTasks.filter(task => task !== deletedTask))
-        }
+    }
+    
+    
     const handleTaskUpdateStatusChange = (updatedTask: TaskType) => (e: React.ChangeEvent<HTMLInputElement>) => {
         const done = e.target.checked
 
         setTasks(previousTasks => previousTasks.map(task => (task === updatedTask ? {...task, done } : task)))
      }
 
-    const activeTasks = tasks.filter(task => !task.done)
+    
+     const activeTasks = tasks.filter(task => !task.done)
 
-    const handleNewTaskTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    
+    
+     const handleNewTaskTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const key = e.key
         const title = newTaskTitle.trim()
 
-        if (newTaskTitleRef.current !== null){
-            const input = newTaskTitleRef.current
-            const title = input.value.trim()
         if (key === 'Enter' && title !== ''){
             setTasks(previousTasks => previousTasks.concat({id: previousTasks.length + 1, title, done: false}))
 
             setNewTaskTitle('')
-            input.value = ""
         }}
 
+
+    const handleTaskTitleLabelDoubleClick = (task: TaskType) => (_e: React.MouseEvent<HTMLLabelElement, MouseEvent>) => {
+        const input = taskTitlesRef.current[task.id]
+
+        setTaskBeingEditedId(task.id)
+
+        input.value = task.title
+
+        setTimeout(() => input.focus(), 0)
     }
+
+    const handleTaskTitleKeyDown = (editedTask: TaskType) => (e: React.KeyboardEvent<HTMLInputElement>) => {
+        const input = taskTitlesRef.current[editedTask.id]
+        const { key } = e
+        const title = input.value.trim()
+
+        if (key === 'Enter') {
+            if (title !== "" && title !== editedTask.title)
+                setTasks(previousTasks => previousTasks.map(task => (task === editedTask ? {...task, title } : task)))
+
+            setTaskBeingEditedId(null) 
+        }   else if (key === 'Escape') {
+            input.value = editedTask.title
+        }
+    }
+
 
     return (
         <>
@@ -57,7 +86,6 @@ const TaskManager: FC = () => {
                 autoFocus 
                 value={newTaskTitle}
                 onChange={e => setNewTaskTitle(e.target.value)}
-                ref = {newTaskTitleRef}
                 onKeyDown={handleNewTaskTitleKeyDown}
                 />
 
@@ -68,26 +96,26 @@ const TaskManager: FC = () => {
                 <label htmlFor='toggle-all'>Mark all as complete</label>
                 <ul className='todo-list'>
                 {tasks.map(task => (
-                    <li className={classNames({completed: task.done})}>
+                    <li className={classNames({completed: task.done, editing: task.id === taskBeingEditedId})}
+                    key={task.id}>
                         <div className='view'>
                             <input className='toggle' 
                             type='checkbox' 
                             checked={task.done} 
                             onChange={handleTaskUpdateStatusChange(task)} 
                             />
-                            <label>{task.title}</label>
+                            <label onDoubleClick={handleTaskTitleLabelDoubleClick(task)}>{task.title}</label>
                             <button className='destroy' onClick={handleTaskDeleteClick(task)}></button>
                         </div>
-                        <input className='edit' value='Taste JavaScript' />
+                        <input className='edit' 
+                        ref={el => {
+                            if (el!== null) taskTitlesRef.current[task.id] = el
+                        }} 
+                        onKeyDown={handleTaskTitleKeyDown(task)}
+                        />
                     </li>
-                ))}    
-                <li>
-                    <div className='view'>
-                    <input className='toggle' type='checkbox' />
-                    <button className='destroy'></button>
-                    </div>
-                    <input className='edit' value='Buy a unicorn' />
-                </li>
+                ))}
+                
                 </ul>
             </section>
 
