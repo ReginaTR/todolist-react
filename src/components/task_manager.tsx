@@ -19,6 +19,7 @@ const TaskManager: FC = () => {
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [taskBeingEditedId, setTaskBeingEditedId] = useState<TaskType['id']| null>(null)
     const taskTitlesRef = useRef<{[index: TaskType['id']]: HTMLInputElement }>({})
+    
 
    
     
