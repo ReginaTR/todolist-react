@@ -7,6 +7,10 @@ type TaskType = {
     title: string,
     done: boolean
 }
+
+type FilterType = 'all' | 'active' | 'completed' //union, teoria de conjuntos
+
+
 const TASKS: TaskType[] = [
     {id: 1, title: 'A', done: true},
     {id: 2, title: 'B', done: false},
@@ -19,7 +23,7 @@ const TaskManager: FC = () => {
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [taskBeingEditedId, setTaskBeingEditedId] = useState<TaskType['id']| null>(null)
     const taskTitlesRef = useRef<{[index: TaskType['id']]: HTMLInputElement }>({})
-    
+    const [filter, setFilter] = useState<FilterType>('all') 
 
    
     
@@ -33,10 +37,6 @@ const TaskManager: FC = () => {
 
         setTasks(previousTasks => previousTasks.map(task => (task === updatedTask ? {...task, done } : task)))
      }
-
-    
-     const activeTasks = tasks.filter(task => !task.done)
-
     
     
      const handleNewTaskTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -75,6 +75,23 @@ const TaskManager: FC = () => {
         }
     }
 
+    const applyFilterSelectedClass =(filterValue: FilterType) => classNames({ selected: filter === filterValue})
+
+    const activeTasks = tasks.filter(task => !task.done)
+    const completedTasks = tasks.filter(task => task.done)
+
+    const visibleTasks = () => {
+        switch (filter) {
+            case 'all': return tasks
+            case 'active': return activeTasks
+            case 'completed': return completedTasks
+            default:{
+                //Exhaustiveness checking
+                const _exhaustiveCheck: never = filter
+                return _exhaustiveCheck
+            }
+        }
+    }
 
     return (
         <>
@@ -96,7 +113,7 @@ const TaskManager: FC = () => {
                 <input id='toggle-all' className='toggle-all' type='checkbox' />
                 <label htmlFor='toggle-all'>Mark all as complete</label>
                 <ul className='todo-list'>
-                {tasks.map(task => (
+                {visibleTasks().map(task => (
                     <li className={classNames({completed: task.done, editing: task.id === taskBeingEditedId})}
                     key={task.id}>
                         <div className='view'>
@@ -126,15 +143,13 @@ const TaskManager: FC = () => {
                 </span>
                 <ul className='filters'>
                 <li>
-                    <a className='selected' href='#/'>
-                    All
-                    </a>
+                    <a className={applyFilterSelectedClass('all')} href='#' onClick={() => setFilter('all')}>All</a>
                 </li>
                 <li>
-                    <a href='#/active'>Active</a>
+                    <a className={applyFilterSelectedClass('active')} href='#' onClick={() => setFilter('active')}>Active</a>
                 </li>
                 <li>
-                    <a href='#/completed'>Completed</a>
+                    <a className={applyFilterSelectedClass('completed')} href='#' onClick={() => setFilter('completed')}>Completed</a>
                 </li>
                 </ul>
                 <button className='clear-completed'>Clear completed</button>
