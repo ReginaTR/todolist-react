@@ -1,31 +1,27 @@
-import { FC, useRef, useState } from "react"
+import { FC, useEffect, useRef, useState } from "react"
 import classNames from 'classnames'
+import { listTasksApi } from "../services/api"
 
-//Aqui estou tipando o tasks
-type TaskType = {
+export type TaskType = {
     id: number,
     title: string,
     done: boolean
 }
 
-type FilterType = 'all' | 'active' | 'completed' //union, teoria de conjuntos
-
-
-const TASKS: TaskType[] = [
-    {id: 1, title: 'A', done: true},
-    {id: 2, title: 'B', done: false},
-    {id: 3, title: 'C', done: true},
-]
-
+type FilterType = 'all' | 'active' | 'completed' 
 
 const TaskManager: FC = () => {
-    const [tasks, setTasks] = useState(TASKS)
+    const [tasks, setTasks] = useState<TaskType[]>([])
     const [newTaskTitle, setNewTaskTitle] = useState("")
     const [taskBeingEditedId, setTaskBeingEditedId] = useState<TaskType['id']| null>(null)
     const taskTitlesRef = useRef<{[index: TaskType['id']]: HTMLInputElement }>({})
     const [filter, setFilter] = useState<FilterType>('all') 
 
-   
+   useEffect(() => {
+    listTasksApi().then(response => {
+        setTasks(response.data)
+    })
+   }, [])
     
     const handleTaskDeleteClick = (deletedTask: TaskType) => (_e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         setTasks(previousTasks => previousTasks.filter(task => task !== deletedTask))
